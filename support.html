@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support & FAQ - TripExpenses</title>
+    <link rel="icon" type="image/png" href="app-icon.png">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-dark: #3730A3;
+            --bg: #0B0F19;
+            --surface: #111827;
+            --surface-card: #1F2937;
+            --text-main: #F9FAFB;
+            --text-muted: #9CA3AF;
+            --border: #374151;
+            --accent: #10B981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.65;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 48px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header img {
+            width: 72px;
+            height: 72px;
+            border-radius: 16px;
+            box-shadow: 0 8px 16px rgba(79, 70, 229, 0.3);
+        }
+
+        .header-title h1 {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .header-title p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .contact-card {
+            background: rgba(79, 70, 229, 0.12);
+            border: 1px solid rgba(79, 70, 229, 0.3);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 36px;
+            text-align: center;
+        }
+
+        .contact-card h2 {
+            font-size: 20px;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .contact-card p {
+            color: var(--text-muted);
+            font-size: 15px;
+            margin-bottom: 16px;
+        }
+
+        .contact-btn {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+            font-size: 15px;
+            padding: 12px 28px;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: background 0.2s ease;
+        }
+
+        .contact-btn:hover {
+            background: var(--primary-dark);
+            text-decoration: none;
+        }
+
+        .faq-section h2 {
+            font-size: 22px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+        .faq-item {
+            background: var(--surface-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .faq-item h3 {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #E0E7FF;
+        }
+
+        .faq-item p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 0;
+            line-height: 1.6;
+        }
+
+        a {
+            color: #818CF8;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .footer {
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 20px 12px; }
+            .container { padding: 24px 18px; }
+            .header { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <img src="app-icon.png" alt="TripExpenses App Icon">
+        <div class="header-title">
+            <h1>Customer Support & FAQ</h1>
+            <p>TripExpenses for iOS • We are here to help</p>
+        </div>
+    </div>
+
+    <div class="contact-card">
+        <h2>Need Assistance with TripExpenses?</h2>
+        <p>Whether you have a feature suggestion, bug report, or billing question, our team is ready to assist you.</p>
+        <a href="mailto:support@tripexpenses.app?subject=TripExpenses%20Support%20Request" class="contact-btn">Email Support Team</a>
+        <p style="font-size: 12px; margin-top: 12px; margin-bottom: 0; color: #6B7280;">Typical response time: Under 24 hours</p>
+    </div>
+
+    <div class="faq-section">
+        <h2>Frequently Asked Questions</h2>
+
+        <div class="faq-item">
+            <h3>✈️ Does TripExpenses work offline while roaming?</h3>
+            <p>Yes! TripExpenses is built with an offline-first architecture using SwiftData. You can add expenses, scan receipts, and calculate debt settlements on airplanes or in remote areas with zero cell signal. Once you reconnect to WiFi or cellular data, your changes automatically sync to your group in the background.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3>📷 How does the Camera Receipt Scanner work?</h3>
+            <p>Tap the camera icon when logging an expense (or trigger the Action Button shortcut) to snap a paper bill or receipt. Apple's on-device Vision framework immediately analyzes the image, detects the total amount and currency, and extracts individual dish and drink line items so you never have to type manually.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3>💳 How does Joint Card splitting work for couples?</h3>
+            <p>When you and your partner share an account or credit card, choose "Joint Card" as the payment method and select both partner names. TripExpenses credits your combined share without creating false internal debts between the two of you, while fairly splitting the remainder across your travel companions.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3>🤝 How do I settle debts with friends?</h3>
+            <p>In the Balances tab, tap "Settle Up" on any friend to trigger native 1-tap handoffs: Apple Cash via iMessage with amount pre-filled, Australian PayID / Osko with 1-tap clipboard copying, or direct deep links to PayPal.me and Revolut.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3>🌐 Can Android friends view or join our trip?</h3>
+            <p>Yes! Every shared trip includes a web link with a 6-character code. Android or desktop users can open the link in any modern web browser to view real-time balances, itemized expenses, and debt settlement options.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3>👑 How does the "Only Host Pays" Pro subscription work?</h3>
+            <p>Only the trip creator needs a TripExpenses Pro subscription ($0.99/month or $9.99/year). All invited friends, family members, and travel companions can join, scan receipts, and log expenses 100% free without ever hitting a paywall.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3>🔄 How do I restore my purchase on a new device?</h3>
+            <p>Open the app, navigate to Settings > TripExpenses Pro, and tap "Restore Purchases". StoreKit 2 will automatically communicate with Apple's App Store and restore your active subscription.</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <span>•</span>
+            <a href="support.html">Support & FAQ</a>
+            <span>•</span>
+            <a href="privacy.html">Privacy Policy</a>
+        </div>
+        <p>© 2026 TripExpenses. All rights reserved.</p>
+    </div>
+</div>
+
+</body>
+</html>

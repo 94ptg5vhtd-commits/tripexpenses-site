@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - TripExpenses</title>
+    <link rel="icon" type="image/png" href="app-icon.png">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-dark: #3730A3;
+            --bg: #0B0F19;
+            --surface: #111827;
+            --surface-card: #1F2937;
+            --text-main: #F9FAFB;
+            --text-muted: #9CA3AF;
+            --border: #374151;
+            --accent: #10B981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.65;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 48px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header img {
+            width: 72px;
+            height: 72px;
+            border-radius: 16px;
+            box-shadow: 0 8px 16px rgba(79, 70, 229, 0.3);
+        }
+
+        .header-title h1 {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .header-title p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        h2 {
+            font-size: 20px;
+            color: var(--text-main);
+            margin-top: 32px;
+            margin-bottom: 12px;
+            letter-spacing: -0.3px;
+        }
+
+        p, li {
+            color: var(--text-muted);
+            font-size: 15px;
+            margin-bottom: 14px;
+        }
+
+        ul {
+            padding-left: 20px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background: rgba(79, 70, 229, 0.1);
+            border-left: 4px solid var(--primary);
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin: 24px 0;
+        }
+
+        .highlight-box p {
+            color: #E0E7FF;
+            margin: 0;
+            font-size: 14px;
+        }
+
+        a {
+            color: #818CF8;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .footer {
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 20px 12px; }
+            .container { padding: 24px 18px; }
+            .header { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <img src="app-icon.png" alt="TripExpenses App Icon">
+        <div class="header-title">
+            <h1>Privacy Policy</h1>
+            <p>Last Updated: September 16, 2026 • Version 1.0</p>
+        </div>
+    </div>
+
+    <div class="highlight-box">
+        <p><strong>Core Privacy Commitment:</strong> TripExpenses does not sell, rent, or monetize your personal data. We do not run third-party advertising SDKs, tracking pixels, or data brokers. Your financial records and travel receipts belong solely to you and your travel group.</p>
+    </div>
+
+    <h2>1. Information We Collect and How We Use It</h2>
+    <p>TripExpenses is designed with an offline-first architecture. The information processed by the app includes:</p>
+    <ul>
+        <li><strong>Trip & Expense Information:</strong> Expense titles, amounts, foreign currencies, exchange rates, categories, and split ratios that you create. This data is saved locally on your device via SwiftData and synced securely to Cloud Firestore when sharing trips with group members.</li>
+        <li><strong>On-Device Receipt Scanning (Camera & Photos):</strong> Receipt photos scanned using the in-app camera or photo picker are analyzed <em>on-device</em> using Apple's Vision framework (OCR). Text extraction runs entirely on your device's Neural Engine and is never transmitted to any third-party vision APIs.</li>
+        <li><strong>Location Data (Optional):</strong> If you grant location access, TripExpenses records the GPS coordinate (latitude and longitude) of an expense solely to display it on your personal travel map. Location is never tracked continuously in the background and is never shared with third parties.</li>
+        <li><strong>Contacts (Optional):</strong> If you use the native iOS contact picker to invite friends or autofill payment details, the contact data is accessed purely on-device at the moment of selection. We never upload or scrape your address book.</li>
+    </ul>
+
+    <h2>2. Cloud Synchronization & Multi-User Sharing</h2>
+    <p>When you share a trip via a 6-character code or secret invite link:</p>
+    <ul>
+        <li>Trip and expense records are encrypted in transit and stored in Google Firebase Cloud Firestore.</li>
+        <li>Authentication uses anonymous cryptographic tokens. We do not require or demand your real name, email, or password to join or view a shared trip.</li>
+        <li>Only members with your trip’s cryptographic link or explicit host approval can read or modify shared trip expenses.</li>
+    </ul>
+
+    <h2>3. In-App Purchases & Subscriptions</h2>
+    <p>All in-app purchases and subscriptions (TripExpenses Pro) are handled securely through Apple's StoreKit 2 and App Store infrastructure. We do not collect or store your credit card numbers, billing addresses, or banking credentials.</p>
+
+    <h2>4. Third-Party Services</h2>
+    <p>TripExpenses utilizes minimal, strictly necessary third-party infrastructure:</p>
+    <ul>
+        <li><strong>Apple Inc.:</strong> App Store distribution, StoreKit transaction validation, and Vision OCR framework.</li>
+        <li><strong>Google Firebase:</strong> Cloud Firestore for real-time group synchronization and Firebase Anonymous Authentication.</li>
+        <li><strong>Exchange Rate APIs:</strong> Open-access foreign currency lookup for foreign exchange conversion. No personal user data is attached to exchange rate queries.</li>
+    </ul>
+
+    <h2>5. Data Retention & Deletion</h2>
+    <p>You maintain full control over your data:</p>
+    <ul>
+        <li>Deleting a trip inside the app permanently deletes all associated local expenses and debt settlements.</li>
+        <li>If you are the trip owner, deleting a shared trip purges the trip records and cloud subcollections from Firestore.</li>
+        <li>You can reset or wipe all app data at any time by uninstalling the application.</li>
+    </ul>
+
+    <h2>6. Children's Privacy</h2>
+    <p>TripExpenses is not intended for or directed towards children under the age of 13. We do not knowingly collect personal information from children.</p>
+
+    <h2>7. Contact & Inquiries</h2>
+    <p>If you have any questions or feedback regarding this Privacy Policy or your data, please contact us at:</p>
+    <p><strong>Email:</strong> <a href="mailto:support@tripexpenses.app">support@tripexpenses.app</a></p>
+
+    <div class="footer">
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <span>•</span>
+            <a href="support.html">Support & FAQ</a>
+            <span>•</span>
+            <a href="privacy.html">Privacy Policy</a>
+        </div>
+        <p>© 2026 TripExpenses. All rights reserved.</p>
+    </div>
+</div>
+
+</body>
+</html>
