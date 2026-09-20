@@ -144,15 +144,105 @@
             text-decoration: underline;
         }
 
+        .invite-card {
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.15) 0%, rgba(16, 185, 129, 0.1) 100%);
+            border: 2px solid #4F46E5;
+            border-radius: 20px;
+            padding: 32px 24px;
+            text-align: center;
+            margin-bottom: 40px;
+            box-shadow: 0 12px 30px rgba(79, 70, 229, 0.25);
+            display: none;
+        }
+
+        .code-box {
+            display: inline-flex;
+            align-items: center;
+            gap: 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 20px;
+            margin: 16px 0 24px;
+        }
+
+        .code-text {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: 6px;
+            color: #10B981;
+        }
+
+        .btn-primary {
+            display: inline-block;
+            background: #4F46E5;
+            color: #FFFFFF !important;
+            font-size: 16px;
+            font-weight: 700;
+            padding: 14px 28px;
+            border-radius: 12px;
+            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
+            transition: all 0.2s ease;
+            text-decoration: none !important;
+            margin-right: 12px;
+            margin-bottom: 8px;
+        }
+
+        .btn-primary:hover {
+            background: #4338CA;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            display: inline-block;
+            background: var(--surface-card);
+            color: var(--text-main) !important;
+            border: 1px solid var(--border);
+            font-size: 16px;
+            font-weight: 600;
+            padding: 14px 24px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            text-decoration: none !important;
+            cursor: pointer;
+            margin-bottom: 8px;
+        }
+
+        .btn-secondary:hover {
+            background: #374151;
+        }
+
         @media (max-width: 600px) {
             h1 { font-size: 32px; }
             .subtitle { font-size: 16px; }
+            .code-text { font-size: 26px; letter-spacing: 4px; }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
+    <div id="inviteCard" class="invite-card">
+        <div style="font-size: 48px; margin-bottom: 8px;">✈️</div>
+        <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 8px;">You're Invited to Join a Trip!</h2>
+        <p style="color: var(--text-muted); font-size: 16px;">Collaborate, split expenses, and track group spending on TripExpenses.</p>
+        
+        <div class="code-box">
+            <span style="font-size: 13px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Trip Code:</span>
+            <span id="tripCodeDisplay" class="code-text">------</span>
+        </div>
+        
+        <div style="margin-bottom: 16px;">
+            <a id="openAppBtn" href="#" class="btn-primary">📲 Open in TripExpenses</a>
+            <button id="copyCodeBtn" class="btn-secondary" onclick="copyTripCode()">📋 Copy Code</button>
+        </div>
+        
+        <p style="font-size: 13px; color: var(--text-muted);">
+            Don't have the app installed yet? Ask your host for the TestFlight link or open this page after installing.
+        </p>
+    </div>
+
     <div class="hero">
         <img src="app-icon.png" alt="TripExpenses Icon" class="app-icon">
         <h1>TripExpenses</h1>
@@ -215,6 +305,61 @@
         <p>© 2026 JLam Solutions (ABN: 55 450 695 789). Designed for effortless group travel.</p>
     </div>
 </div>
+
+<script>
+    function getQueryParam(param) {
+        var urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    var code = getQueryParam('code') || getQueryParam('join') || getQueryParam('c');
+    
+    // Also check path, e.g. /join/ABC123
+    if (!code) {
+        var pathParts = window.location.pathname.split('/');
+        var joinIndex = pathParts.indexOf('join');
+        if (joinIndex !== -1 && pathParts[joinIndex + 1]) {
+            code = pathParts[joinIndex + 1];
+        }
+    }
+
+    if (code) {
+        code = code.trim().toUpperCase();
+        var inviteCard = document.getElementById('inviteCard');
+        var tripCodeDisplay = document.getElementById('tripCodeDisplay');
+        var openAppBtn = document.getElementById('openAppBtn');
+        
+        if (inviteCard && tripCodeDisplay && openAppBtn) {
+            tripCodeDisplay.textContent = code;
+            openAppBtn.href = "tripexpenses://join?code=" + encodeURIComponent(code);
+            inviteCard.style.display = 'block';
+            
+            // On mobile iOS devices, attempt seamless auto-open
+            var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            if (isIOS) {
+                setTimeout(function() {
+                    window.location.href = "tripexpenses://join?code=" + encodeURIComponent(code);
+                }, 350);
+            }
+        }
+    }
+
+    function copyTripCode() {
+        if (!code) return;
+        navigator.clipboard.writeText(code).then(function() {
+            var btn = document.getElementById('copyCodeBtn');
+            if (btn) {
+                var original = btn.textContent;
+                btn.textContent = '✅ Copied!';
+                btn.style.borderColor = '#10B981';
+                setTimeout(function() {
+                    btn.textContent = original;
+                    btn.style.borderColor = 'var(--border)';
+                }, 2000);
+            }
+        });
+    }
+</script>
 
 </body>
 </html>
