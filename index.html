@@ -213,10 +213,129 @@
             background: #374151;
         }
 
+        .showcase-section {
+            margin: 48px 0 64px;
+            text-align: center;
+        }
+
+        .section-header {
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: #FFFFFF;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .section-subtitle {
+            font-size: 15px;
+            color: var(--text-muted);
+            max-width: 580px;
+            margin: 0 auto;
+        }
+
+        .screenshot-gallery {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding: 16px 8px 32px;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+        }
+
+        .screenshot-gallery::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .screenshot-gallery::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 100px;
+        }
+
+        .screenshot-gallery::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 100px;
+        }
+
+        .screenshot-card {
+            flex: 0 0 240px;
+            scroll-snap-align: center;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 12px;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+            transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+            text-align: center;
+        }
+
+        .screenshot-card:hover {
+            transform: translateY(-6px);
+            border-color: #6366F1;
+            box-shadow: 0 20px 44px rgba(79, 70, 229, 0.25);
+        }
+
+        .screenshot-card.card-highlight {
+            border-color: rgba(236, 72, 153, 0.6);
+            box-shadow: 0 16px 36px rgba(236, 72, 153, 0.2);
+        }
+
+        .screenshot-card.card-highlight:hover {
+            border-color: #EC4899;
+            box-shadow: 0 20px 44px rgba(236, 72, 153, 0.35);
+        }
+
+        .screenshot-img-wrap {
+            border-radius: 18px;
+            overflow: hidden;
+            background: #000000;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            aspect-ratio: 1 / 2.16;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .screenshot-img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .screenshot-caption {
+            margin-top: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .screenshot-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .badge-wrapped {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%) !important;
+            border: 1px solid rgba(236, 72, 153, 0.4) !important;
+            color: #F472B6 !important;
+        }
+
         @media (max-width: 600px) {
             h1 { font-size: 32px; }
             .subtitle { font-size: 16px; }
             .code-text { font-size: 26px; letter-spacing: 4px; }
+            .screenshot-card { flex: 0 0 200px; }
         }
     </style>
 </head>
@@ -264,6 +383,58 @@
             <span class="badge-pill">🍏 Sign in with Apple</span>
             <span class="badge-pill">💳 Joint Card Support</span>
             <span class="badge-pill">📱 iOS 18 Widgets & Siri</span>
+            <span class="badge-pill badge-wrapped">✨ Viral Trip Wrapped Stories</span>
+        </div>
+    </div>
+
+    <div class="showcase-section">
+        <div class="section-header">
+            <h2 class="section-title">Designed for Effortless Travel</h2>
+            <p class="section-subtitle">A native iOS 18 experience built for speed, clarity, and zero connection anxiety.</p>
+        </div>
+        <div class="screenshot-gallery">
+            <div class="screenshot-card">
+                <div class="screenshot-img-wrap">
+                    <img src="screenshots/dashboard.png" alt="TripExpenses Trips Dashboard">
+                </div>
+                <div class="screenshot-caption">📱 Trips Dashboard</div>
+                <div class="screenshot-sub">Live countdowns & status</div>
+            </div>
+            <div class="screenshot-card">
+                <div class="screenshot-img-wrap">
+                    <img src="screenshots/expenses.png" alt="Itemized Split Expenses">
+                </div>
+                <div class="screenshot-caption">🧾 Split Expenses</div>
+                <div class="screenshot-sub">Multi-currency conversions</div>
+            </div>
+            <div class="screenshot-card">
+                <div class="screenshot-img-wrap">
+                    <img src="screenshots/scanner.png" alt="Instant AI Receipt Scanner">
+                </div>
+                <div class="screenshot-caption">📷 AI Receipt OCR</div>
+                <div class="screenshot-sub">1-Tap line item extraction</div>
+            </div>
+            <div class="screenshot-card">
+                <div class="screenshot-img-wrap">
+                    <img src="screenshots/balances.png" alt="Balances and Settle Up">
+                </div>
+                <div class="screenshot-caption">🤝 1-Tap Settle Up</div>
+                <div class="screenshot-sub">PayID & Apple Cash handoff</div>
+            </div>
+            <div class="screenshot-card">
+                <div class="screenshot-img-wrap">
+                    <img src="screenshots/analytics.png" alt="Daily Burn Rate Analytics">
+                </div>
+                <div class="screenshot-caption">📊 Spending Analytics</div>
+                <div class="screenshot-sub">Daily pace & budget gauges</div>
+            </div>
+            <div class="screenshot-card card-highlight">
+                <div class="screenshot-img-wrap">
+                    <img src="screenshots/trip_wrapped.png" alt="Trip Wrapped Story Card">
+                </div>
+                <div class="screenshot-caption" style="color: #F472B6;">✨ Trip Wrapped</div>
+                <div class="screenshot-sub">Viral 9:16 story cards</div>
+            </div>
         </div>
     </div>
 
@@ -332,6 +503,12 @@
             <span class="feature-icon">🤝</span>
             <h3>1-Tap Settlement Handoff</h3>
             <p>Settle debts instantly via Apple Cash in iMessage with pre-filled amounts, Australian PayID with auto-expiring clipboards, or PayPal & Revolut.</p>
+        </div>
+
+        <div class="feature-card">
+            <span class="feature-icon">✨</span>
+            <h3>Trip Wrapped (Story Cards)</h3>
+            <p>Celebrate your vacation with viral Spotify-Wrapped style shareable story cards. Awards fun titles (The Foodie, The ATM) with privacy initials for Instagram & TikTok.</p>
         </div>
 
         <div class="feature-card">
