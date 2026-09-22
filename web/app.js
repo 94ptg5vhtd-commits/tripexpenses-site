@@ -73,18 +73,27 @@ async function loadTrip(code) {
     }
 
     // Direct lookup by doc ID (which matches invite code in our schema)
-    let docSnap = await db.collection("trips").doc(cleanCode).get();
+    let docSnap = null;
+    try {
+      docSnap = await db.collection("trips").doc(cleanCode).get();
+    } catch (e) {
+      console.warn("Direct doc get error:", e);
+    }
 
     // Fallback: query inviteCode field
-    if (!docSnap.exists) {
-      const querySnap = await db.collection("trips").where("inviteCode", "==", cleanCode).limit(1).get();
-      if (!querySnap.empty) {
-        docSnap = querySnap.docs[0];
+    if (!docSnap || !docSnap.exists) {
+      try {
+        const querySnap = await db.collection("trips").where("inviteCode", "==", cleanCode).limit(1).get();
+        if (!querySnap.empty) {
+          docSnap = querySnap.docs[0];
+        }
+      } catch (e) {
+        console.warn("Query fallback error:", e);
       }
     }
 
-    if (!docSnap.exists) {
-      showError(`Trip with code "${cleanCode}" was not found. Please check with your trip host.`);
+    if (!docSnap || !docSnap.exists) {
+      showError(`Trip with code "${cleanCode}" was not found or has not been published yet. Ask the trip host to open "Trip Members & Sharing" in their iPhone app to sync it to cloud.`);
       return;
     }
 
@@ -92,8 +101,14 @@ async function loadTrip(code) {
     renderTrip(docSnap.id, tripData);
 
     // Fetch itemized subcollection expenses
-    const expSnap = await db.collection("trips").doc(docSnap.id).collection("expenses").get();
-    const expenses = expSnap.docs.map(d => d.data());
+    let expenses = [];
+    try {
+      const expSnap = await db.collection("trips").doc(docSnap.id).collection("expenses").get();
+      expenses = expSnap.docs.map(d => d.data());
+    } catch (expErr) {
+      console.warn("Could not load expenses subcollection:", expErr);
+    }
+
     renderExpensesAndBalances(tripData, expenses);
 
     loadingIndicator.classList.add("hidden");
@@ -103,7 +118,11 @@ async function loadTrip(code) {
     window.location.hash = `/trip/${cleanCode}`;
   } catch (err) {
     console.error(err);
-    showError("Could not load trip: " + (err.message || "Network error."));
+    if (err.code === "permission-denied" || (err.message && err.message.includes("permission"))) {
+      showError(`Could not load trip: Missing or insufficient permissions. Please verify Firestore security rules in the Firebase Console.`);
+    } else {
+      showError("Could not load trip: " + (err.message || "Network error."));
+    }
   }
 }
 
