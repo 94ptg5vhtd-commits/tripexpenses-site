@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting to TripExpenses...</title>
+    <script>
+        (function() {
+            var path = window.location.pathname;
+            var parts = path.split('/');
+            var joinIndex = parts.indexOf('join');
+            var code = '';
+            if (joinIndex !== -1 && parts[joinIndex + 1]) {
+                code = parts[joinIndex + 1];
+            }
+            var search = window.location.search;
+            if (code) {
+                var dest = '/?code=' + encodeURIComponent(code);
+                if (search && search.length > 1) {
+                    dest += '&' + search.substring(1).replace(/^\?/, '');
+                }
+                window.location.replace(dest);
+            } else {
+                window.location.replace('/' + (search || ''));
+            }
+        })();
+    </script>
+    <style>
+        body {
+            background-color: #0B0F19;
+            color: #F9FAFB;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        .redirect-box {
+            padding: 32px;
+            background: #111827;
+            border-radius: 16px;
+            border: 1px solid #374151;
+            max-width: 400px;
+        }
+        a { color: #818CF8; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="redirect-box">
+        <div style="font-size: 36px; margin-bottom: 12px;">✈️</div>
+        <h2>Opening TripExpenses...</h2>
+        <p style="color: #9CA3AF; font-size: 14px; margin-top: 8px;">If you are not redirected automatically, <a href="/">click here to continue</a>.</p>
+    </div>
+</body>
+</html>

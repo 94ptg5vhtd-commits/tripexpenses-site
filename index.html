@@ -364,6 +364,15 @@
             <button id="copyCodeBtn" class="btn-secondary" onclick="copyTripCode()">📋 Copy Code</button>
         </div>
         
+        <div id="desktopNotice" style="display: none; margin-top: 16px; margin-bottom: 16px; padding: 18px; background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(129, 140, 248, 0.4); border-radius: 12px; text-align: center;">
+            <p style="font-size: 15px; font-weight: 700; color: #FFFFFF; margin-bottom: 6px;">📲 Designed for iPhone & iPad</p>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">TripExpenses runs natively on iOS. Scan this QR code with your iPhone camera to join this trip instantly:</p>
+            <div style="display: inline-block; padding: 10px; background: #FFFFFF; border-radius: 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.4);">
+                <img id="desktopQrImg" src="" alt="Scan QR Code" style="width: 140px; height: 140px; display: block;">
+            </div>
+            <p style="font-size: 12px; color: #A5B4FC; margin-top: 10px;">Or enter trip code <strong id="desktopCodeDisplay" style="color: #FFF; font-family: monospace; letter-spacing: 2px;"></strong> inside the app</p>
+        </div>
+
         <div style="font-size: 13px; color: var(--text-muted); max-width: 520px; margin: 0 auto; line-height: 1.5; padding: 12px; background: rgba(31, 41, 55, 0.6); border-radius: 10px; border: 1px solid var(--border);">
             <p><strong>Already have the app?</strong> Tap the purple <strong>Open in TripExpenses</strong> button above.</p>
             <p style="margin-top: 6px;"><strong>First time joining?</strong> Install the app via your host's TestFlight invite or App Store, then tap this link again to automatically join and claim your profile!</p>
@@ -531,7 +540,7 @@
             <span>•</span>
             <a href="terms.html">Terms of Use</a>
         </div>
-        <p>© 2026 JLam Solutions (ABN: 55 450 695 789). Designed for effortless group travel.</p>
+        <p>© 2026 JLam Solutions. Designed for effortless group travel.</p>
     </div>
 </div>
 
@@ -589,24 +598,51 @@
             }
         }
 
+        var isRealIOS = (/iPhone|iPod/.test(navigator.userAgent) || 
+                        (/iPad/.test(navigator.userAgent) && !/Macintosh/.test(navigator.userAgent)) || 
+                        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1 && !/Macintosh/.test(navigator.userAgent))) && 
+                        !window.MSStream;
+
         if (tripCodeDisplay) {
             tripCodeDisplay.textContent = cleanCode;
         }
 
+        var desktopNotice = document.getElementById('desktopNotice');
+        var desktopQrImg = document.getElementById('desktopQrImg');
+        var desktopCodeDisplay = document.getElementById('desktopCodeDisplay');
+
+        if (desktopCodeDisplay) {
+            desktopCodeDisplay.textContent = cleanCode;
+        }
+        if (desktopQrImg) {
+            desktopQrImg.src = "https://api.qrserver.com/v1/create-qr-code/?size=280x280&margin=4&data=" + encodeURIComponent(window.location.href);
+        }
+
         if (openAppBtn) {
-            openAppBtn.href = deepLink;
+            if (isRealIOS) {
+                openAppBtn.href = deepLink;
+                // Auto-redirect ONLY on mobile iOS devices
+                setTimeout(function() {
+                    window.location.href = deepLink;
+                }, 400);
+            } else {
+                // On Mac / PC / Desktop, do NOT navigate to custom scheme which crashes Safari
+                openAppBtn.href = "#desktopNotice";
+                if (desktopNotice) {
+                    desktopNotice.style.display = 'block';
+                }
+                openAppBtn.onclick = function(e) {
+                    e.preventDefault();
+                    if (desktopNotice) {
+                        desktopNotice.style.display = 'block';
+                        desktopNotice.scrollIntoView({ behavior: 'smooth' });
+                    }
+                };
+            }
         }
 
         if (inviteCard) {
             inviteCard.style.display = 'block';
-        }
-
-        // On mobile iOS devices, attempt seamless auto-open
-        var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        if (isIOS) {
-            setTimeout(function() {
-                window.location.href = deepLink;
-            }, 350);
         }
 
         window.copyTripCode = function() {
