@@ -360,17 +360,19 @@
         </div>
         
         <div style="margin-bottom: 16px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
-            <a id="openAppBtn" href="#" class="btn-primary">📲 Open in TripExpenses</a>
+            <a id="viewWebBtn" href="web/" class="btn-primary" style="background: linear-gradient(135deg, #10B981, #059669); box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);">🌐 View Live Trip in Browser</a>
+            <a id="openAppBtn" href="#" class="btn-primary">📲 Open in iOS App</a>
             <button id="copyCodeBtn" class="btn-secondary" onclick="copyTripCode()">📋 Copy Code</button>
         </div>
         
         <div id="desktopNotice" style="display: none; margin-top: 16px; margin-bottom: 16px; padding: 18px; background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(129, 140, 248, 0.4); border-radius: 12px; text-align: center;">
-            <p style="font-size: 15px; font-weight: 700; color: #FFFFFF; margin-bottom: 6px;">📲 Designed for iPhone & iPad</p>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">TripExpenses runs natively on iOS. Scan this QR code with your iPhone camera to join this trip instantly:</p>
+            <p style="font-size: 15px; font-weight: 700; color: #FFFFFF; margin-bottom: 6px;">🌐 Cross-Platform Web Companion</p>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Using <strong>Android</strong>, <strong>Mac</strong>, or <strong>Windows</strong>? Tap the green <strong>View Live Trip in Browser</strong> button above to view balances, itemized expenses, and debts right in your browser!</p>
+            <p style="font-size: 13px; color: #A5B4FC; margin-bottom: 12px;">Or scan this QR code with an iPhone camera to open directly in the app:</p>
             <div style="display: inline-block; padding: 10px; background: #FFFFFF; border-radius: 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.4);">
                 <img id="desktopQrImg" src="" alt="Scan QR Code" style="width: 140px; height: 140px; display: block;">
             </div>
-            <p style="font-size: 12px; color: #A5B4FC; margin-top: 10px;">Or enter trip code <strong id="desktopCodeDisplay" style="color: #FFF; font-family: monospace; letter-spacing: 2px;"></strong> inside the app</p>
+            <p style="font-size: 12px; color: #A5B4FC; margin-top: 10px;">Trip Code: <strong id="desktopCodeDisplay" style="color: #FFF; font-family: monospace; letter-spacing: 2px;"></strong></p>
         </div>
 
         <div style="font-size: 13px; color: var(--text-muted); max-width: 520px; margin: 0 auto; line-height: 1.5; padding: 12px; background: rgba(31, 41, 55, 0.6); border-radius: 10px; border: 1px solid var(--border);">
@@ -605,6 +607,15 @@
 
         if (tripCodeDisplay) {
             tripCodeDisplay.textContent = cleanCode;
+        }
+
+        var viewWebBtn = document.getElementById('viewWebBtn');
+        var webUrl = 'web/?code=' + encodeURIComponent(cleanCode);
+        if (rawMember && rawMember.trim().length > 0) {
+            webUrl += '&member=' + encodeURIComponent(rawMember.trim());
+        }
+        if (viewWebBtn) {
+            viewWebBtn.href = webUrl;
         }
 
         var desktopNotice = document.getElementById('desktopNotice');

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>TripExpenses Web Companion</title>
+  <link rel="icon" type="image/png" href="../app-icon.png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <div style="text-align: left; margin-bottom: 8px;">
+      <a href="../" style="color: #6366F1; text-decoration: none; font-size: 13px; font-weight: 600;">← Back to TripExpenses Home</a>
+    </div>
+    <header class="hero-header">
+      <div class="logo-badge">✈️</div>
+      <h1>TripExpenses</h1>
+      <p class="subtitle">Live Web Companion for Friends & Android</p>
+    </header>
+
+    <main class="card-container">
+      <!-- Search / Input Card -->
+      <section class="lookup-card" id="lookupSection">
+        <label for="codeInput">Enter 6-Character Trip Code</label>
+        <div class="input-row">
+          <input type="text" id="codeInput" maxlength="6" placeholder="e.g. TOKYO8" autocomplete="off" autocorrect="off" autocapitalize="characters" />
+          <button id="loadTripBtn" class="primary-btn">View Trip</button>
+        </div>
+        <p class="hint-text">Ask your friend with an iPhone for their trip invite code.</p>
+        <div id="iosBanner" style="display:none; margin-top: 14px; padding: 12px; background: #EEF2FF; border-radius: 10px; text-align: center;">
+          <p style="margin: 0 0 6px 0; font-size: 13px; font-weight: 600; color: #3730A3;">Using an iPhone?</p>
+          <a id="openAppBtn" href="#" style="display: inline-block; background: #4F46E5; color: white; padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 13px; text-decoration: none;">Open in TripExpenses App ↗</a>
+        </div>
+      </section>
+
+      <!-- Loading State -->
+      <div id="loadingIndicator" class="loading-state hidden">
+        <div class="spinner"></div>
+        <p>Fetching trip details from cloud...</p>
+      </div>
+
+      <!-- Error State -->
+      <div id="errorCard" class="alert alert-error hidden">
+        <span id="errorMessage"></span>
+      </div>
+
+      <!-- Trip Dashboard -->
+      <section id="tripDashboard" class="trip-dashboard hidden">
+        <div class="trip-hero">
+          <span class="trip-emoji" id="tripEmoji">✈️</span>
+          <div>
+            <h2 id="tripTitle">Trip Title</h2>
+            <span class="currency-tag" id="tripCurrency">AUD</span>
+          </div>
+        </div>
+
+        <div class="tab-controls">
+          <button class="tab-btn active" data-tab="balancesTab">Balances</button>
+          <button class="tab-btn" data-tab="expensesTab">Expenses</button>
+        </div>
+
+        <!-- Balances Tab -->
+        <div id="balancesTab" class="tab-content active">
+          <div class="section-title">Individual Balances</div>
+          <div id="membersBalanceList" class="balance-list"></div>
+        </div>
+
+        <!-- Expenses Tab -->
+        <div id="expensesTab" class="tab-content">
+          <div class="section-title">Itemized Log</div>
+          <div id="expensesList" class="expense-list"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>Protected by Firebase Spark • Real-time Cross-Platform Sync</p>
+    </footer>
+  </div>
+
+  <!-- Firebase Web SDK v10 (Compat for simple script loading) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
