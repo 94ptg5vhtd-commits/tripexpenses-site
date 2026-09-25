@@ -158,6 +158,22 @@ function clearError() {
   errorCard.classList.add("hidden");
 }
 
+// Active Trip Context & Real-Time Subscriptions
+let currentTripDocId = null;
+let currentTripCode = null;
+let currentTripData = null;
+let currentExpenses = [];
+let currentSettlements = [];
+let unsubscribeTrip = null;
+let unsubscribeExpenses = null;
+let unsubscribeSettlements = null;
+
+function detachRealtimeListeners() {
+  if (unsubscribeTrip) { unsubscribeTrip(); unsubscribeTrip = null; }
+  if (unsubscribeExpenses) { unsubscribeExpenses(); unsubscribeExpenses = null; }
+  if (unsubscribeSettlements) { unsubscribeSettlements(); unsubscribeSettlements = null; }
+}
+
 async function loadTrip(code) {
   const cleanCode = code.trim().toUpperCase();
   if (cleanCode.length < 4) {
@@ -168,6 +184,7 @@ async function loadTrip(code) {
   clearError();
   loadingIndicator.classList.remove("hidden");
   tripDashboard.classList.add("hidden");
+  detachRealtimeListeners();
 
   try {
     if (!auth.currentUser) {
@@ -176,6 +193,7 @@ async function loadTrip(code) {
 
     // Direct lookup by doc ID (which matches invite code in our schema)
     let docSnap = null;
+    let targetDocId = cleanCode;
     try {
       docSnap = await db.collection("trips").doc(cleanCode).get();
     } catch (e) {
@@ -188,6 +206,7 @@ async function loadTrip(code) {
         const querySnap = await db.collection("trips").where("inviteCode", "==", cleanCode).limit(1).get();
         if (!querySnap.empty) {
           docSnap = querySnap.docs[0];
+          targetDocId = docSnap.id;
         }
       } catch (e) {
         console.warn("Query fallback error:", e);
@@ -199,28 +218,39 @@ async function loadTrip(code) {
       return;
     }
 
-    const tripData = docSnap.data();
-    currentTripDocId = docSnap.id;
+    currentTripDocId = targetDocId;
     currentTripCode = cleanCode;
-    currentTripData = tripData;
-    renderTrip(docSnap.id, tripData);
+    currentTripData = docSnap.data();
 
-    // Fetch itemized subcollection expenses
-    let expenses = [];
-    try {
-      const expSnap = await db.collection("trips").doc(docSnap.id).collection("expenses").get();
-      expenses = expSnap.docs.map(d => d.data());
-    } catch (expErr) {
-      console.warn("Could not load expenses subcollection:", expErr);
-    }
-
-    renderExpensesAndBalances(tripData, expenses);
-
+    renderTrip(targetDocId, currentTripData);
     loadingIndicator.classList.add("hidden");
     tripDashboard.classList.remove("hidden");
-
-    // Update URL hash for easy sharing
     window.location.hash = `/trip/${cleanCode}`;
+
+    // 1. Real-time Trip Metadata Listener
+    const tripRef = db.collection("trips").doc(targetDocId);
+    unsubscribeTrip = tripRef.onSnapshot((snap) => {
+      if (snap.exists) {
+        currentTripData = snap.data();
+        renderTrip(targetDocId, currentTripData);
+        renderExpensesAndBalances(currentTripData, currentExpenses, currentSettlements);
+      }
+    }, (err) => console.warn("Trip metadata listener error:", err));
+
+    // 2. Real-time Expenses Subcollection Listener
+    const expensesRef = tripRef.collection("expenses");
+    unsubscribeExpenses = expensesRef.onSnapshot((snap) => {
+      currentExpenses = snap.docs.map(d => d.data());
+      renderExpensesAndBalances(currentTripData, currentExpenses, currentSettlements);
+    }, (err) => console.warn("Expenses listener error:", err));
+
+    // 3. Real-time Settlements Subcollection Listener
+    const settlementsRef = tripRef.collection("settlements");
+    unsubscribeSettlements = settlementsRef.onSnapshot((snap) => {
+      currentSettlements = snap.docs.map(d => d.data());
+      renderExpensesAndBalances(currentTripData, currentExpenses, currentSettlements);
+    }, (err) => console.warn("Settlements listener error:", err));
+
   } catch (err) {
     console.error(err);
     if (err.code === "permission-denied" || (err.message && err.message.includes("permission"))) {
@@ -237,17 +267,25 @@ function renderTrip(docId, trip) {
   tripCurrency.textContent = trip.defaultCurrency || "AUD";
 }
 
-function renderExpensesAndBalances(trip, expenses) {
+function renderExpensesAndBalances(trip, expenses = [], settlements = []) {
+  if (!trip) return;
   const members = trip.members || [];
   const currency = trip.defaultCurrency || "AUD";
 
-  // Calculate net balance for each member
+  // Calculate net balance for each member in trip base currency
   const balances = {};
   members.forEach(m => { balances[m] = 0.0; });
 
   expenses.forEach(exp => {
     const payer = exp.paidBy;
-    const cost = exp.amount || 0;
+    const rawAmount = Number(exp.amount) || 0;
+    const expCurr = exp.currency || currency;
+
+    let effectiveRate = 1.0;
+    if (expCurr !== currency) {
+      effectiveRate = Number(exp.exchangeRateToAUD) > 0 ? Number(exp.exchangeRateToAUD) : 1.0;
+    }
+    const cost = rawAmount * effectiveRate;
 
     if (payer && balances[payer] !== undefined) {
       balances[payer] += cost;
@@ -256,7 +294,7 @@ function renderExpensesAndBalances(trip, expenses) {
     if (exp.isItemizedSplit && exp.customSplitAmounts) {
       for (const [member, share] of Object.entries(exp.customSplitAmounts)) {
         if (balances[member] !== undefined) {
-          balances[member] -= Number(share);
+          balances[member] -= (Number(share) || 0) * effectiveRate;
         }
       }
     } else {
@@ -267,6 +305,17 @@ function renderExpensesAndBalances(trip, expenses) {
           balances[m] -= perPerson;
         }
       });
+    }
+  });
+
+  // Apply settlements to member balances
+  settlements.forEach(s => {
+    const amt = Number(s.amountAUD) || 0;
+    if (s.fromMember && balances[s.fromMember] !== undefined) {
+      balances[s.fromMember] += amt;
+    }
+    if (s.toMember && balances[s.toMember] !== undefined) {
+      balances[s.toMember] -= amt;
     }
   });
 
@@ -293,6 +342,26 @@ function renderExpensesAndBalances(trip, expenses) {
     `;
     membersBalanceList.appendChild(div);
   });
+
+  // If settlements exist, show Settled Debts subsection
+  if (settlements.length > 0) {
+    const settleHeader = document.createElement("div");
+    settleHeader.style.cssText = "margin-top: 20px; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; color: var(--text-secondary);";
+    settleHeader.textContent = "Settled Debts";
+    membersBalanceList.appendChild(settleHeader);
+
+    settlements.forEach(s => {
+      const sDiv = document.createElement("div");
+      sDiv.className = "balance-item";
+      sDiv.style.opacity = "0.85";
+      const sAmt = Number(s.amountAUD || 0).toFixed(2);
+      sDiv.innerHTML = `
+        <span class="balance-name">✓ ${escapeHTML(s.fromMember)} → ${escapeHTML(s.toMember)}</span>
+        <span class="balance-val val-zero">${escapeHTML(sAmt)} AUD</span>
+      `;
+      membersBalanceList.appendChild(sDiv);
+    });
+  }
 
   // Render Expenses
   expensesList.innerHTML = "";
@@ -450,12 +519,28 @@ if (addExpenseForm) {
       const user = auth.currentUser;
       const createdBy = (user && !user.isAnonymous) ? (user.displayName || user.email || "Web User") : (paidBy || "Web User");
 
+      // Fetch live exchange rate if currency is not AUD
+      let exchangeRateToAUD = 1.0;
+      if (currency !== "AUD") {
+        try {
+          const rateRes = await fetch(`https://api.frankfurter.app/latest?from=${encodeURIComponent(currency)}&to=AUD`);
+          if (rateRes.ok) {
+            const rateData = await rateRes.json();
+            if (rateData && rateData.rates && typeof rateData.rates.AUD === "number") {
+              exchangeRateToAUD = rateData.rates.AUD;
+            }
+          }
+        } catch (fxErr) {
+          console.warn("Could not fetch Frankfurter rate for " + currency + ", defaulting to 1.0:", fxErr);
+        }
+      }
+
       const newExpenseData = {
         id: newExpId,
         title: title,
         amount: amount,
         currency: currency,
-        exchangeRateToAUD: 1.0,
+        exchangeRateToAUD: exchangeRateToAUD,
         category: category,
         paymentMethod: "Cash / Individual Card",
         paidBy: paidBy,
@@ -472,10 +557,6 @@ if (addExpenseForm) {
       await db.collection("trips").doc(currentTripDocId).collection("expenses").doc(newExpId).set(newExpenseData);
 
       closeModal();
-      // Reload trip data and balances
-      if (currentTripCode) {
-        await loadTrip(currentTripCode);
-      }
     } catch (err) {
       console.error("Save expense error:", err);
       modalError.textContent = "Failed to save: " + (err.message || "Permission error");
