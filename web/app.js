@@ -491,8 +491,8 @@ if (addExpenseForm) {
       return;
     }
 
-    if (isNaN(amount) || amount <= 0) {
-      modalError.textContent = "Please enter a valid amount greater than zero.";
+    if (isNaN(amount) || amount <= 0 || amount > 1000000000) {
+      modalError.textContent = "Please enter a valid amount between 0.01 and 1,000,000,000.";
       modalError.classList.remove("hidden");
       return;
     }
@@ -519,11 +519,14 @@ if (addExpenseForm) {
       const user = auth.currentUser;
       const createdBy = (user && !user.isAnonymous) ? (user.displayName || user.email || "Web User") : (paidBy || "Web User");
 
-      // Fetch live exchange rate if currency is not AUD
+      // Fetch live exchange rate if currency is not AUD (bounded with 3.5s timeout)
       let exchangeRateToAUD = 1.0;
       if (currency !== "AUD") {
         try {
-          const rateRes = await fetch(`https://api.frankfurter.app/latest?from=${encodeURIComponent(currency)}&to=AUD`);
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 3500);
+          const rateRes = await fetch(`https://api.frankfurter.app/latest?from=${encodeURIComponent(currency)}&to=AUD`, { signal: controller.signal });
+          clearTimeout(timeoutId);
           if (rateRes.ok) {
             const rateData = await rateRes.json();
             if (rateData && rateData.rates && typeof rateData.rates.AUD === "number") {
