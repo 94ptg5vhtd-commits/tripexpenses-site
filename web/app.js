@@ -30,6 +30,11 @@ try {
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+// Active Trip Context
+let currentTripDocId = null;
+let currentTripCode = null;
+let currentTripData = null;
+
 // UI Elements
 const codeInput = document.getElementById("codeInput");
 const loadTripBtn = document.getElementById("loadTripBtn");
@@ -43,6 +48,88 @@ const tripTitle = document.getElementById("tripTitle");
 const tripCurrency = document.getElementById("tripCurrency");
 const membersBalanceList = document.getElementById("membersBalanceList");
 const expensesList = document.getElementById("expensesList");
+
+// Auth Elements
+const googleSignInBtn = document.getElementById("googleSignInBtn");
+const userProfile = document.getElementById("userProfile");
+const userAvatar = document.getElementById("userAvatar");
+const userName = document.getElementById("userName");
+const signOutBtn = document.getElementById("signOutBtn");
+
+// Modal Elements
+const openAddExpenseBtn = document.getElementById("openAddExpenseBtn");
+const addExpenseModal = document.getElementById("addExpenseModal");
+const closeModalBtn = document.getElementById("closeModalBtn");
+const cancelExpenseBtn = document.getElementById("cancelExpenseBtn");
+const addExpenseForm = document.getElementById("addExpenseForm");
+const expTitle = document.getElementById("expTitle");
+const expAmount = document.getElementById("expAmount");
+const expCurrency = document.getElementById("expCurrency");
+const expCategory = document.getElementById("expCategory");
+const expPaidBy = document.getElementById("expPaidBy");
+const splitMembersList = document.getElementById("splitMembersList");
+const modalError = document.getElementById("modalError");
+const saveExpenseBtn = document.getElementById("saveExpenseBtn");
+
+// Helper: UUID v4
+function generateUUID() {
+  if (window.crypto && window.crypto.randomUUID) {
+    return window.crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
+// Auth State Observer
+auth.onAuthStateChanged((user) => {
+  if (user && !user.isAnonymous) {
+    if (googleSignInBtn) googleSignInBtn.classList.add("hidden");
+    if (userProfile) userProfile.classList.remove("hidden");
+    if (userName) userName.textContent = user.displayName || user.email || "Member";
+    if (userAvatar) {
+      if (user.photoURL) {
+        userAvatar.src = user.photoURL;
+        userAvatar.style.display = "block";
+      } else {
+        userAvatar.style.display = "none";
+      }
+    }
+  } else {
+    if (googleSignInBtn) googleSignInBtn.classList.remove("hidden");
+    if (userProfile) userProfile.classList.add("hidden");
+  }
+});
+
+// Google Sign-In Handler
+if (googleSignInBtn) {
+  googleSignInBtn.addEventListener("click", async () => {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    try {
+      await auth.signInWithPopup(provider);
+    } catch (err) {
+      console.warn("Popup sign-in error, falling back to redirect:", err);
+      try {
+        await auth.signInWithRedirect(provider);
+      } catch (redirectErr) {
+        alert("Sign-in failed: " + (err.message || redirectErr.message));
+      }
+    }
+  });
+}
+
+// Sign-Out Handler
+if (signOutBtn) {
+  signOutBtn.addEventListener("click", async () => {
+    try {
+      await auth.signOut();
+      await auth.signInAnonymously();
+    } catch (err) {
+      console.error("Sign-out error:", err);
+    }
+  });
+}
 
 // Tab Switching
 document.querySelectorAll(".tab-btn").forEach(btn => {
@@ -113,6 +200,9 @@ async function loadTrip(code) {
     }
 
     const tripData = docSnap.data();
+    currentTripDocId = docSnap.id;
+    currentTripCode = cleanCode;
+    currentTripData = tripData;
     renderTrip(docSnap.id, tripData);
 
     // Fetch itemized subcollection expenses
@@ -244,6 +334,158 @@ codeInput.addEventListener("keypress", (e) => {
     loadTrip(codeInput.value);
   }
 });
+
+// Modal Controls & Expense Creation
+function openModal() {
+  if (!currentTripData) return;
+  modalError.classList.add("hidden");
+  expTitle.value = "";
+  expAmount.value = "";
+
+  // Populate Currencies
+  expCurrency.innerHTML = "";
+  const baseCurr = currentTripData.defaultCurrency || "AUD";
+  const common = [baseCurr, "AUD", "USD", "EUR", "GBP", "JPY", "NZD", "SGD", "THB", "IDR"];
+  const uniqueCurrs = Array.from(new Set(common));
+  uniqueCurrs.forEach(curr => {
+    const opt = document.createElement("option");
+    opt.value = curr;
+    opt.textContent = curr;
+    expCurrency.appendChild(opt);
+  });
+  expCurrency.value = baseCurr;
+
+  // Populate PaidBy
+  expPaidBy.innerHTML = "";
+  const members = currentTripData.members || [];
+  members.forEach(m => {
+    const opt = document.createElement("option");
+    opt.value = m;
+    opt.textContent = m;
+    expPaidBy.appendChild(opt);
+  });
+
+  // Default PaidBy to signed-in user name if matching, or first member
+  const currentUser = auth.currentUser;
+  if (currentUser && currentUser.displayName) {
+    const match = members.find(m => m.toLowerCase() === currentUser.displayName.toLowerCase());
+    if (match) expPaidBy.value = match;
+  }
+
+  // Populate Split Checkboxes
+  splitMembersList.innerHTML = "";
+  members.forEach(m => {
+    const label = document.createElement("label");
+    label.className = "checkbox-label";
+    label.innerHTML = `
+      <input type="checkbox" name="splitMember" value="${escapeHTML(m)}" checked />
+      <span>${escapeHTML(m)}</span>
+    `;
+    splitMembersList.appendChild(label);
+  });
+
+  addExpenseModal.classList.remove("hidden");
+  setTimeout(() => expTitle.focus(), 100);
+}
+
+function closeModal() {
+  addExpenseModal.classList.add("hidden");
+}
+
+if (openAddExpenseBtn) openAddExpenseBtn.addEventListener("click", openModal);
+if (closeModalBtn) closeModalBtn.addEventListener("click", closeModal);
+if (cancelExpenseBtn) cancelExpenseBtn.addEventListener("click", closeModal);
+
+if (addExpenseModal) {
+  addExpenseModal.addEventListener("click", (e) => {
+    if (e.target === addExpenseModal) {
+      closeModal();
+    }
+  });
+}
+
+// Save Expense
+if (addExpenseForm) {
+  addExpenseForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    modalError.classList.add("hidden");
+
+    const title = expTitle.value.trim();
+    const amount = parseFloat(expAmount.value);
+    const currency = expCurrency.value;
+    const category = expCategory.value;
+    const paidBy = expPaidBy.value;
+
+    if (!title) {
+      modalError.textContent = "Please enter an expense description.";
+      modalError.classList.remove("hidden");
+      return;
+    }
+
+    if (isNaN(amount) || amount <= 0) {
+      modalError.textContent = "Please enter a valid amount greater than zero.";
+      modalError.classList.remove("hidden");
+      return;
+    }
+
+    // Get selected split members
+    const checkedBoxes = splitMembersList.querySelectorAll("input[type='checkbox']:checked");
+    const splitForMembers = Array.from(checkedBoxes).map(cb => cb.value);
+
+    if (splitForMembers.length === 0) {
+      modalError.textContent = "Please select at least one person to split this expense with.";
+      modalError.classList.remove("hidden");
+      return;
+    }
+
+    saveExpenseBtn.disabled = true;
+    saveExpenseBtn.textContent = "Saving...";
+
+    try {
+      if (!auth.currentUser) {
+        await auth.signInAnonymously();
+      }
+
+      const newExpId = generateUUID();
+      const user = auth.currentUser;
+      const createdBy = (user && !user.isAnonymous) ? (user.displayName || user.email || "Web User") : (paidBy || "Web User");
+
+      const newExpenseData = {
+        id: newExpId,
+        title: title,
+        amount: amount,
+        currency: currency,
+        exchangeRateToAUD: 1.0,
+        category: category,
+        paymentMethod: "Cash / Individual Card",
+        paidBy: paidBy,
+        jointPayers: [],
+        splitForMembers: splitForMembers,
+        participants: splitForMembers,
+        isItemizedSplit: false,
+        date: firebase.firestore.Timestamp.now(),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        createdBy: createdBy,
+        notes: "Logged via TripExpenses Web Companion"
+      };
+
+      await db.collection("trips").doc(currentTripDocId).collection("expenses").doc(newExpId).set(newExpenseData);
+
+      closeModal();
+      // Reload trip data and balances
+      if (currentTripCode) {
+        await loadTrip(currentTripCode);
+      }
+    } catch (err) {
+      console.error("Save expense error:", err);
+      modalError.textContent = "Failed to save: " + (err.message || "Permission error");
+      modalError.classList.remove("hidden");
+    } finally {
+      saveExpenseBtn.disabled = false;
+      saveExpenseBtn.textContent = "Save Expense";
+    }
+  });
+}
 
 // Auto-load code from URL if present (?code=ABC or #/trip/ABC)
 window.addEventListener("DOMContentLoaded", () => {
