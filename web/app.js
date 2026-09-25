@@ -1,17 +1,32 @@
 // TripExpenses Web Companion
 const firebaseConfig = {
-  apiKey: "AIzaSyAvoFWzrDrwgtVdL3wx0RxjcGb9l1FO5-w",
+  apiKey: "AIzaSyBknZDvToKhDpnJkUPos4Kf7MpAi_oqCxM",
   authDomain: "tripexpenses-64d08.firebaseapp.com",
   projectId: "tripexpenses-64d08",
   storageBucket: "tripexpenses-64d08.firebasestorage.app",
   messagingSenderId: "755996245972",
-  appId: "1:755996245972:ios:2aaafd15c4fcca4dee6041"
+  appId: "1:755996245972:web:e8b1c45f35762d56ee6041",
+  measurementId: "G-W0JXEB5G3W"
 };
 
 // Initialize Firebase
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
+
+// Initialize App Check with reCAPTCHA Enterprise
+try {
+  if (typeof firebase.appCheck === 'function') {
+    const appCheck = firebase.appCheck();
+    appCheck.activate(
+      new firebase.appCheck.ReCaptchaEnterpriseProvider("6Lckgc4tAAAAANL4blmKZpeqmUqdszBsugvjNZli"),
+      true
+    );
+  }
+} catch (err) {
+  console.warn("Firebase App Check init notice:", err);
+}
+
 const auth = firebase.auth();
 const db = firebase.firestore();
 
