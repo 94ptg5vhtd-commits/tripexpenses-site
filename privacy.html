@@ -158,10 +158,19 @@
     <p>TripExpenses is designed with an offline-first architecture. The information processed by the app includes:</p>
     <ul>
         <li><strong>Trip & Expense Information:</strong> Expense titles, amounts, foreign currencies, exchange rates, categories, and split ratios that you create. This data is saved locally on your device via SwiftData and synced securely to Cloud Firestore when sharing trips with group members.</li>
-        <li><strong>Receipt Scanning & AI Vision:</strong> 
+        <li><strong>Receipt Scanning & AI Vision (Guidelines 5.1.1(i) & 5.1.2(i)):</strong> 
             <ul>
-                <li><em>Local On-Device Processing:</em> By default, receipt photos scanned using the camera or photo picker are analyzed directly on your device using Apple's Vision framework (OCR). Text extraction runs on your iPhone's Neural Engine.</li>
-                <li><em>Cloud AI Fallback (Google Gemini Flash):</em> For complex, crumpled, or multi-item handwritten receipts, you may choose to invoke Cloud AI. When invoked, receipt images are transmitted ephemerally over encrypted TLS 1.3 to Google Gemini Flash API servers. The image is processed in volatile memory solely to extract line items and amounts, is immediately discarded, is never saved on remote servers, and is never used to train artificial intelligence models. Receipt photos remain stored exclusively on your iPhone's local sandbox storage.</li>
+                <li><em>Local On-Device Processing:</em> By default, receipt photos scanned using the camera or photo picker are analyzed directly on your device using Apple's Vision framework (OCR). Text extraction runs entirely on your iPhone's Neural Engine without internet transmission.</li>
+                <li><em>Third-Party AI Service (Google Cloud Gemini API):</em> For complex, crumpled, or multi-item handwritten receipts, you may explicitly opt to use Cloud AI enhancement.
+                    <ul>
+                        <li><strong>What Data is Sent:</strong> The receipt photo or document image you select/capture, including visible text such as merchant name, date, item descriptions, and prices.</li>
+                        <li><strong>How It is Collected:</strong> Captured or picked directly by the user within the expense creation screen.</li>
+                        <li><strong>Who It is Sent To:</strong> Google LLC (Google Cloud Gemini API servers).</li>
+                        <li><strong>All Uses of That Data:</strong> Exclusively for optical character recognition and parsing structured expense line items into your app form. Never used for user profiling, advertising, or marketing.</li>
+                        <li><strong>User Permission & Control:</strong> Transmitted only after you grant explicit in-app consent via our AI transparency prompt. You can revoke this permission at any time in App Settings &gt; Receipt AI Assistance.</li>
+                        <li><strong>Third-Party Protection Guarantee:</strong> In accordance with Guideline 5.1.2(i), we confirm that Google LLC provides equal or greater protection of user data, operating under strict SOC 2, ISO 27001, and GDPR enterprise standards. Under Google Cloud API terms, receipt data is encrypted in transit via TLS 1.3, processed ephemerally in volatile memory, never stored on disk, and never used to train Google's artificial intelligence or machine learning models.</li>
+                    </ul>
+                </li>
             </ul>
         </li>
         <li><strong>Location Data (Optional):</strong> If you grant location access, TripExpenses records the GPS coordinate (latitude and longitude) of an expense solely to display it on your personal travel map. Location is never tracked continuously in the background and is never shared with third parties.</li>
@@ -179,13 +188,13 @@
     <h2>3. In-App Purchases & Subscriptions</h2>
     <p>All in-app purchases and subscriptions (TripExpenses Pro) are handled securely through Apple's StoreKit 2 and App Store infrastructure. We do not collect or store your credit card numbers, billing addresses, or banking credentials.</p>
 
-    <h2>4. Third-Party Services</h2>
-    <p>TripExpenses utilizes minimal, strictly necessary third-party infrastructure:</p>
+    <h2>4. Third-Party Services & Data Protection Standards</h2>
+    <p>TripExpenses utilizes minimal, strictly audited third-party infrastructure. We confirm that all third parties provide the same or equal protection of user personal data:</p>
     <ul>
-        <li><strong>Apple Inc.:</strong> App Store distribution, StoreKit transaction validation, and Vision OCR framework.</li>
-        <li><strong>Google Firebase:</strong> Cloud Firestore for real-time group synchronization and Firebase Anonymous Authentication.</li>
-        <li><strong>Google Gemini AI:</strong> Ephemeral, zero-retention multi-modal API for advanced receipt line-item parsing.</li>
-        <li><strong>Exchange Rate APIs:</strong> Open-access foreign currency lookup for foreign exchange conversion. No personal user data is attached to exchange rate queries.</li>
+        <li><strong>Apple Inc.:</strong> App Store distribution, StoreKit transaction validation, and on-device Vision OCR framework.</li>
+        <li><strong>Google Firebase:</strong> Cloud Firestore for encrypted real-time group synchronization and Firebase Anonymous Authentication.</li>
+        <li><strong>Google Cloud (Gemini API):</strong> Zero-retention, ephemeral multi-modal artificial intelligence for receipt parsing. All data is processed under enterprise data protection commitments ensuring zero storage and zero model training.</li>
+        <li><strong>Exchange Rate APIs:</strong> Open-access foreign currency lookup for foreign exchange conversion. No personal user data is ever transmitted.</li>
     </ul>
 
     <h2>5. Data Retention & Deletion</h2>
